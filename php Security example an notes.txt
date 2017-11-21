@@ -1,0 +1,128 @@
+Ways people hack your website
+session hijacking
+SQL Injection
+cross site scripting
+
+Mainly what you want to do whenever you are defining that you want to aacccess your ddatabaase
+is that you want to access the databaase only using protective files perferably ones outside of your we directory
+If you do that it makes it almosst imposible for people/hackers to gain access to your current information...as long as youare using regular expressions
+well.
+
+example
+<?php
+require_once("../include/configdb.php");
+
+- define all the variables you need to access your database. By assigning them as constants it will keep hackers from changing these values.
+- most sites are hackable and the main reason why is because people dont use regular expressions
+<?php
+	DEFINE ('DBUSER', 'mysqladmin');
+	DEFINE ('DBPW', 'password');
+	DEFINE ('DBHOST', 'localhost');	
+	DEFINE ('DBNAME', 'hamdb');
+	
+	if ($dbs = mysql_connect(DBHOST, DBUSER, DBPW){
+- suppress errors so that it can be hard for end user too figure out how thisngs are configured
+
+	if (!mysql_select_db(DBNAME){
+		- If you are unaable to access the database
+		trigger_error("Could not select the database<br />");
+		exit();
+	}
+} else {
+	trigger_error("Could not connect to MySQL<br />");
+	exit();
+}
+
+- create a function that will scrape out any harmful information
+function escape_data($data){
+
+- this funcon escapes charaacters that can be used for sql injections
+	if(function_exists('mysql_real_escape_string')){
+		global $dbc;
+		$data = myql_real_escape_string(trim($trim(data), $dbc);
+		
+		- this line will strip out any html tags that someone tries to put into your input string
+		$data = strip_tags($data);
+	
+	}else{
+		$data = mysql_escape_string($trim($data));
+		$data = strip_tags($data);
+	}
+	
+	return $data;
+	
+-Using Regular Expression
+-Avoid using hidden fields in html - use the Escape value method - stripslashes unquotes quoted strings
+if (isset($_POST['submitted'])){
+	if(preg_match('%^[A-Za-z\.\'\-]{2,15}%', stripslashes(trim($_POST['first_name'])))){
+		$fn = escape_data($_POST['first_name']);
+	}else{
+		$fn = FALSE;
+		echo '<p><font color="red">Please enter a valid first name</font></p>;
+	}
+	- regular expressions on an email check
+	email: '%^[A-Aa-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4$%}'
+	Street: '%^[A-Za-z0-9\.\'\-]{5,3}$%'
+	State: '%^(A[KLRZ]|([AOT]|
+			%^[0-9]{5}$%
+			%\(?[0-9]{3}\)?-?[0-9]{3}[-. ]?[0-9]{4}
+			
+	%\^(?=[-_a-zA-Z0-9]*[A-Z])(?=[-_a-zA-Z0-9]*[a-z])(?=[-_a-zA-Z0-9]*[0-9])\S{6,}$
+}
+
+}
+
+- Insert your most restrictive value last - for best results I shouldd enter state last since it is Just 2 Characters in length
+
+if (preg_match ('%\A(?=[-_a-zA-Z0-9]*?[A-Z])(?=[-_a-zA-Z0-9]*?[a-z])(?=[-_a-zA-Z0-9]*?[0-9])\S{6,}\Z%', stripslashes(trim($_POST['password1'])))){
+	if($_POST['password'] == $_POST['password2']){
+		$p = escape_data($_POST['password']);
+	}else{
+		p$ = FALSE;
+		echo '<p><font color="red" size="+1">Your password did not match the confirmed password!</font></p>
+	}
+	}else{
+		$p = FALSE;
+		echo '<p><font color="red" size="+1">Please enter a valid password!</font></p>';
+	}
+
+	if ($fn && $ln && $e && $p && $fn && $s && $c && $st && $z && $ph) {
+		$query ="SELECT user_id FROM users WHERE email='$e'";
+		
+		$result = mysql_query($query) or trigger_error("Sorry email is taken");
+		
+		if(mysql_num_rows($result) == 0){
+			$a = md5(uniqid(rand(), true));
+		}
+	}
+}
+
+
+
+$query = "INSERT INTO users(email, pass, first_name, last_name, active, registration_date, street, city, state, zip, work_phone) VALUES ('$e', SHA('$p'), '$fn', '$ln', '$a', NOW(), '$s', '$c', '$st', '$z', '$ph')";
+
+$result = mysql_query($query) or trigger_error("Sorry an error happened");
+
+if(mysql_affected_rows() == 1){
+	
+	$body = "Thanks for registering. Activate account by clicking this link: <br />";
+	$body .= "http://localhost/activate.php?x=" . mysql_insert_id() . "&y=$a";
+	
+	- use $e instead of email for a clean version of email
+	mail($_POST['email'], 'Registration Confirmation', '$body', 'From: ibay0918@gmail.com' );
+
+}
+
+mysql_close();
+
+?>
+
+your form
+
+<h1>Register</h1>
+<Form action="register.php" method="post">
+<p><b>First Name:</b> <input type="text" name="first_name" size="15" maxlength="15" value="<?php if (isset($_POST['first_name']))echo $_POST['first_name']; ?> /></p>
+<p><b>Last Name:</b> <input type="text" name="last_name" size="15" maxlength="15" value="<?php if (isset($_POST['last_name']))echo $_POST['last_name']; ?> /></p>
+<p><b>age:</b> <input type="text" name="age" size="15" maxlength="15" value="<?php if (isset($_POST['age']))echo $_POST['age']; ?> /></p>
+<p><b>email:</b> <input type="text" name="email" size="15" maxlength="15" value="<?php if (isset($_POST['emaail']))echo $_POST['email']; ?> /></p>
+<p><b>Password:</b> <input type="password" name="password1" size="15" maxlength="20" value="<?php if (isset($_POST['password']))echo $_POST['password']; ?> /></p>
